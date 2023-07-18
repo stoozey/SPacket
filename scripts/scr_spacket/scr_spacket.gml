@@ -1,5 +1,10 @@
 function Packet(_packetId = undefined) constructor
 {
+	static get_packet_id = function()
+	{
+		return __packetId;
+	}
+	
 	static get = function(_valueName)
 	{
 		// TODO add missing check
@@ -12,7 +17,19 @@ function Packet(_packetId = undefined) constructor
 		return self;
 	}
 	
-	static deserialize = function(_buffer)
+	static send = function(_socket)
+	{
+		if ((__packetId == undefined) || (__definition == undefined))
+			throw ("SPacket: cannot send uninitialized packet (packetId is undefined)");
+		
+		var _buffer = serialize();
+		var _bufferSize = buffer_tell(_buffer);
+		network_send_packet(_socket, _buffer, _bufferSize);
+		buffer_delete(_buffer);
+		return self;
+	}
+	
+	static deserialize = function(_buffer, _deleteBuffer = true)
 	{
 		buffer_seek(_buffer, buffer_seek_start, 0);
 		
@@ -53,6 +70,9 @@ function Packet(_packetId = undefined) constructor
 			throw ("SPacket: failed to deserialize packet #" + __packetId + " with reason: " + _e.longMessage);
 			return false;
 		}
+		
+		if (_deleteBuffer)
+			buffer_delete(_buffer);
 		
 		return true;
 	}
