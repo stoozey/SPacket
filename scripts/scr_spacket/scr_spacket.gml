@@ -1,3 +1,4 @@
-function scr_spacket(){
-
+function Packet() constructor
+{
+	
 }
