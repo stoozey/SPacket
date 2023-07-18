@@ -5,6 +5,7 @@
   "resources": [
     {"id":{"name":"__scr_spacket_packet_info","path":"scripts/__scr_spacket_packet_info/__scr_spacket_packet_info.yy",},"order":5,},
     {"id":{"name":"scr_spacket_info","path":"scripts/scr_spacket_info/scr_spacket_info.yy",},"order":3,},
+    {"id":{"name":"TODO","path":"notes/TODO/TODO.yy",},"order":5,},
     {"id":{"name":"__scr_spacket_macros","path":"scripts/__scr_spacket_macros/__scr_spacket_macros.yy",},"order":4,},
     {"id":{"name":"scr_spacket","path":"scripts/scr_spacket/scr_spacket.yy",},"order":2,},
     {"id":{"name":"obj_spacket_demo","path":"objects/obj_spacket_demo/obj_spacket_demo.yy",},"order":5,},

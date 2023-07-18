@@ -15,13 +15,14 @@ function __spacket_class_packet_info() constructor
 			if (_value.get_name() != _valueName) continue;
 			
 			__spacket_print("tried to add packet value of name \"", _valueName, "\" but it already exists!");
-			return;
+			return self;
 		}
 		
 		array_resize(__values, (_totalValues + 1));
 		
 		var _value = new __spacket_class_packet_info_value(_valueName, _bufferType);
 		__values[_totalValues] = _value;
+		return self;
 	}
 	
 	__values = [ ];

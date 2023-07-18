@@ -1,0 +1,6 @@
+add packet info inheritence
+spacket_define(packetId, packetIdToInherit)
+copies all values to the new definition so they dont need to be manually re-typed for all
+
+
+implement packet version checks
