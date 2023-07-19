@@ -33,17 +33,28 @@ function Packet(_packetId = undefined) constructor
 	{
 		buffer_seek(_buffer, buffer_seek_start, 0);
 		
-		var _packetVersion = buffer_read(_buffer, buffer_u16);
-		var _packetId = buffer_read(_buffer, buffer_string);
-		if (_packetVersion != SPACKET_PACKET_VERSION)
+		var _signature = buffer_read(_buffer, buffer_string);
+		if (_signature != __SPACKET_PACKET_SIGNATURE)
+			throw new __spacket_class_exception_invalid_packet_signature();
+		
+		var _packetVersion;
+		try
+			_packetVersion = buffer_read(_buffer, buffer_string);
+		catch (_)
+			throw new __spacket_class_exception_invalid_packet_data("packetVersion", buffer_string);
+		
+		var _packetId;
+		try
+			_packetId = buffer_read(_buffer, buffer_string);
+		catch (_)
+			throw new __spacket_class_exception_invalid_packet_data("packetId", buffer_string);
+		
+		if (_packetVersion != __SPACKET_PACKET_VERSION)
 		{
 			switch (SPACKET_ON_WRONG_PACKET_VERSION)
 			{
-				case __SPACKET_ON_WRONG_PACKET_VERSION.IGNORE:
-					return false;
-				
 				case __SPACKET_ON_WRONG_PACKET_VERSION.ERROR:
-					throw ("SPacket: got packet #" + _packetId + " with mismatched SPACKET_PACKET_VERSION (we are " + string(SPACKET_PACKET_VERSION) + ", they are " + string(_packetVersion) + ")");
+					throw new __spacket_class_exception_mismatched_packet_version(_packetId, _packetVersion);
 				
 				case __SPACKET_ON_WRONG_PACKET_VERSION.ACCEPT:
 					break;
@@ -52,6 +63,7 @@ function Packet(_packetId = undefined) constructor
 		
 		__set_packet_id(_packetId);
 		
+		var _errorMessage = undefined;
 		try
 		{
 			var _valueDefinitions = __definition.get_values();
@@ -67,14 +79,20 @@ function Packet(_packetId = undefined) constructor
 		}
 		catch (_e)
 		{
-			throw ("SPacket: failed to deserialize packet #" + __packetId + " with reason: " + _e.longMessage);
-			return false;
+			_errorMessage = __spacket_string_build("Failed to deserialize packet #", __packetId, " with reason: ", _e.longMessage);
 		}
+		finally
+		{
+			if (_deleteBuffer)
+				buffer_delete(_buffer);
+		}
+		
+		if (_errorMessage)
+			throw new __spacket_class_exception_generic(_errorMessage);
 		
 		if (_deleteBuffer)
 			buffer_delete(_buffer);
-		
-		return true;
+		return self;
 	}
 	
 	static serialize = function()
@@ -83,7 +101,8 @@ function Packet(_packetId = undefined) constructor
 		
 		try
 		{
-			buffer_write(_buffer, buffer_u16, SPACKET_PACKET_VERSION);
+			buffer_write(_buffer, buffer_string, __SPACKET_PACKET_SIGNATURE);
+			buffer_write(_buffer, buffer_string, __SPACKET_PACKET_VERSION);
 			buffer_write(_buffer, buffer_string, __packetId);
 			
 			var _valueDefinitions = __definition.get_values();
@@ -106,6 +125,7 @@ function Packet(_packetId = undefined) constructor
 			throw ("SPacket: serialize failed on packet #" + __packetId + " with reason: " + string(_e));
 		}
 		
+		buffer_save(_buffer, "poop.bin");
 		return _buffer;
 	}
 	

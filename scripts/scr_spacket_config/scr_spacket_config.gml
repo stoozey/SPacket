@@ -1,2 +1,2 @@
-#macro SPACKET_PACKET_VERSION 1														// A buffer_u16 ID attached to every packet, used to determine if two sockets are on the same "version" of packets
+#macro SPACKET_PACKET_VERSION 1														// An ID (of any type, change it as you please) attached to every packet, used to determine if two sockets are on the same "version" of packets
 #macro SPACKET_ON_WRONG_PACKET_VERSION __SPACKET_ON_WRONG_PACKET_VERSION.ERROR		// What to do when an SPacket is received which has a different SPACKET_PACKET_VERSION

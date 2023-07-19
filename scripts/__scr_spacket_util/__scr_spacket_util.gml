@@ -8,6 +8,16 @@ function __spacket_print()
     show_debug_message(_string);
 }
 
+function __spacket_string_build()
+{
+	var _string = "";
+    var _i = 0;
+    repeat (argument_count)
+        _string += string(argument[_i++]);
+	
+	return _string;
+}
+
 function __spacket_ds_list_to_array(_list, _destroyList = true)
 {
 	var _listSize = ds_list_size(_list);

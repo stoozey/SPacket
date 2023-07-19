@@ -68,7 +68,7 @@
   ],
   "nineSlice": null,
   "parent": {
-    "name": "SPacket",
-    "path": "SPacket.yyp",
+    "name": "Demo",
+    "path": "folders/Demo.yy",
   },
 }
