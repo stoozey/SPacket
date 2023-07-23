@@ -39,21 +39,28 @@ function Packet(_packetId = undefined) constructor
 	{
 		buffer_seek(_buffer, buffer_seek_start, 0);
 		
-		var _signature = buffer_read(_buffer, buffer_string);
+		// read header
+		var _signatureSize = string_length(__SPACKET_PACKET_SIGNATURE);
+		var _signatureBuffer = buffer_create(_signatureSize, buffer_fixed, 1);
+		buffer_copy(_buffer, 0, _signatureSize, _signatureBuffer, 0);
+		
+		var _signature = buffer_read(_signatureBuffer, buffer_text);
+		buffer_seek(_buffer, 0, _signatureSize);
+		buffer_delete(_signatureBuffer);
 		if (_signature != __SPACKET_PACKET_SIGNATURE)
 			throw new __spacket_class_exception_invalid_packet_signature();
 		
 		var _packetVersion;
 		try
-			_packetVersion = buffer_read(_buffer, buffer_string);
+			_packetVersion = buffer_read(_buffer, SPACKET_PACKET_VERSION_BUFFER_TYPE);
 		catch (_)
-			throw new __spacket_class_exception_invalid_packet_data("packetVersion", buffer_string);
+			throw new __spacket_class_exception_invalid_packet_data("packetVersion", SPACKET_PACKET_VERSION_BUFFER_TYPE);
 		
 		var _packetId;
 		try
-			_packetId = buffer_read(_buffer, buffer_string);
+			_packetId = buffer_read(_buffer, SPACKET_PACKET_ID_BUFFER_TYPE);
 		catch (_)
-			throw new __spacket_class_exception_invalid_packet_data("packetId", buffer_string);
+			throw new __spacket_class_exception_invalid_packet_data("packetId", SPACKET_PACKET_ID_BUFFER_TYPE);
 		
 		if (_packetVersion != __SPACKET_PACKET_VERSION)
 		{
@@ -67,9 +74,30 @@ function Packet(_packetId = undefined) constructor
 			}
 		}
 		
+		var _compressed;
+		try
+			_compressed = buffer_read(_buffer, buffer_bool);
+		catch (_)
+			throw new __spacket_class_exception_invalid_packet_data("compressed", buffer_bool);
+			
 		__packetVersion = _packetVersion;
 		__set_packet_id(_packetId);
 		
+		// get data buffer, and decompress if neccesary
+		var _bufferSize = (buffer_get_size(_buffer) - __SPACKET_HEADER_SIZE);
+		var _dataBuffer = buffer_create(_bufferSize, buffer_fixed, 1);
+		buffer_copy(_buffer, __SPACKET_HEADER_SIZE, _bufferSize, _dataBuffer, 0);
+		buffer_delete(_buffer);
+		
+		if (_compressed)
+		{
+			var _uncompressedBuffer = buffer_decompress(_dataBuffer);
+			buffer_delete(_dataBuffer);
+			
+			_dataBuffer = _uncompressedBuffer;
+		}
+		
+		// read data
 		var _errorMessage = undefined;
 		try
 		{
@@ -80,7 +108,7 @@ function Packet(_packetId = undefined) constructor
 				var _valueDefinition = _valueDefinitions[i++];
 				var _name = _valueDefinition.get_name();
 				var _bufferType = _valueDefinition.get_buffer_type();
-				var _value = buffer_read(_buffer, _bufferType);
+				var _value = buffer_read(_dataBuffer, _bufferType);
 				set(_name, _value);
 			}
 		}
@@ -90,7 +118,7 @@ function Packet(_packetId = undefined) constructor
 		}
 		
 		if (_deleteBuffer)
-			buffer_delete(_buffer);
+			buffer_delete(_dataBuffer);
 		
 		if (_errorMessage != undefined)
 			throw new __spacket_class_exception_packet_deserialization_failed(_errorMessage);
