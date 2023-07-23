@@ -1,5 +1,10 @@
 function Packet(_packetId = undefined) constructor
 {
+	static get_packet_version = function()
+	{
+		return __packetVersion;
+	}
+	
 	static get_packet_id = function()
 	{
 		return __packetId;
@@ -7,7 +12,9 @@ function Packet(_packetId = undefined) constructor
 	
 	static get = function(_valueName)
 	{
-		// TODO add missing check
+		if (!variable_struct_exists(__values, _valueName))
+			throw new __spacket_class_exception_packet_value_doesnt_exist(__packetId, _valueName);
+		
 		return __values[$ _valueName];
 	}
 	
@@ -19,8 +26,7 @@ function Packet(_packetId = undefined) constructor
 	
 	static send = function(_socket)
 	{
-		if ((__packetId == undefined) || (__definition == undefined))
-			throw ("SPacket: cannot send uninitialized packet (packetId is undefined)");
+		__check_is_initialized();
 		
 		var _buffer = serialize();
 		var _bufferSize = buffer_tell(_buffer);
@@ -61,6 +67,7 @@ function Packet(_packetId = undefined) constructor
 			}
 		}
 		
+		__packetVersion = _packetVersion;
 		__set_packet_id(_packetId);
 		
 		var _errorMessage = undefined;
@@ -81,28 +88,26 @@ function Packet(_packetId = undefined) constructor
 		{
 			_errorMessage = __spacket_string_build("Failed to deserialize packet #", __packetId, " with reason: ", _e.longMessage);
 		}
-		finally
-		{
-			if (_deleteBuffer)
-				buffer_delete(_buffer);
-		}
-		
-		if (_errorMessage)
-			throw new __spacket_class_exception_generic(_errorMessage);
 		
 		if (_deleteBuffer)
 			buffer_delete(_buffer);
+		
+		if (_errorMessage != undefined)
+			throw new __spacket_class_exception_packet_deserialization_failed(_errorMessage);
+		
 		return self;
 	}
 	
 	static serialize = function()
 	{
+		__check_is_initialized();
+		
 		var _buffer = buffer_create(1024, buffer_grow, 1);
 		
 		try
 		{
 			buffer_write(_buffer, buffer_string, __SPACKET_PACKET_SIGNATURE);
-			buffer_write(_buffer, buffer_string, __SPACKET_PACKET_VERSION);
+			buffer_write(_buffer, buffer_string, __packetVersion);
 			buffer_write(_buffer, buffer_string, __packetId);
 			
 			var _valueDefinitions = __definition.get_values();
@@ -122,7 +127,7 @@ function Packet(_packetId = undefined) constructor
 		catch (_e)
 		{
 			buffer_delete(_buffer);
-			throw ("SPacket: serialize failed on packet #" + __packetId + " with reason: " + string(_e));
+			throw new __spacket_class_exception_packet_serialization_failed(_e.longMessage);
 		}
 		
 		buffer_save(_buffer, "poop.bin");
@@ -135,6 +140,13 @@ function Packet(_packetId = undefined) constructor
 		__definition = spacket_get_definition(__packetId);
 	}
 	
+	static __check_is_initialized = function()
+	{
+		if ((__packetId == undefined) || (__definition == undefined))
+			throw new __spacket_class_exception_uninitialized_packet();
+	}
+	
+	__packetVersion = __SPACKET_PACKET_VERSION;
 	__packetId = undefined;
 	__definition = undefined;
 	__values = { };
