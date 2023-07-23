@@ -14,7 +14,9 @@ spacket_define(PACKET_ID.S_SET_CLIENT_ID)
 
 spacket_define(PACKET_ID.C_SEND_INPUTS)
 	.set("horizontal", buffer_s8)
-	.set("vertical", buffer_s8);
+	.set("vertical", buffer_s8)
+	.set("poopy", buffer_string)
+	.set("idk", buffer_f64);
 
 spacket_define(PACKET_ID.S_UPDATE_POSITION)
 	.set("clientId", buffer_s8)

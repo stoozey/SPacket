@@ -102,14 +102,9 @@ function Packet(_packetId = undefined) constructor
 	{
 		__check_is_initialized();
 		
-		var _buffer = buffer_create(1024, buffer_grow, 1);
-		
+		var _uncompressedBuffer = buffer_create(1024, buffer_grow, 1);
 		try
 		{
-			buffer_write(_buffer, buffer_string, __SPACKET_PACKET_SIGNATURE);
-			buffer_write(_buffer, buffer_string, __packetVersion);
-			buffer_write(_buffer, buffer_string, __packetId);
-			
 			var _valueDefinitions = __definition.get_values();
 			var i = 0;
 			repeat (array_length(_valueDefinitions))
@@ -121,14 +116,46 @@ function Packet(_packetId = undefined) constructor
 			
 				var _bufferType = _valueDefinition.get_buffer_type();
 				var _value = __values[$ _name];
-				buffer_write(_buffer, _bufferType, _value);
+				buffer_write(_uncompressedBuffer, _bufferType, _value);
 			}
 		}
 		catch (_e)
 		{
-			buffer_delete(_buffer);
+			buffer_delete(_uncompressedBuffer);
 			throw new __spacket_class_exception_packet_serialization_failed(_e.longMessage);
 		}
+		
+		// compress buffer and see if size can be reduced
+		var _dataBuffer, _dataSize;
+		var _uncompressedSize = buffer_tell(_uncompressedBuffer);
+		var _compressedBuffer = buffer_compress(_uncompressedBuffer, 0, _uncompressedSize);
+		var _compressedSize = buffer_get_size(_compressedBuffer);
+		var _isCompressed = (_compressedSize < _uncompressedSize);
+		if (_isCompressed)
+		{
+			_dataBuffer = _compressedBuffer;
+			_dataSize = _compressedSize;
+			buffer_delete(_uncompressedBuffer);
+		}
+		else
+		{
+			_dataBuffer = _uncompressedBuffer;
+			_dataSize = _uncompressedSize;
+			buffer_delete(_compressedBuffer);
+		}
+		
+		// create final buffer
+		var _bufferSize = (__SPACKET_HEADER_SIZE + _dataSize);
+		var _buffer = buffer_create(_bufferSize, buffer_fixed, 1);
+		
+		// write header
+		var _headerBuffer = __generate_header_buffer(_isCompressed);
+		buffer_copy(_headerBuffer, 0, __SPACKET_HEADER_SIZE, _buffer, 0);
+		buffer_delete(_headerBuffer);
+		
+		// write compressd data
+		buffer_copy(_dataBuffer, 0, _dataSize, _buffer, __SPACKET_HEADER_SIZE);
+		buffer_delete(_dataBuffer);
 		
 		buffer_save(_buffer, "poop.bin");
 		return _buffer;
@@ -144,6 +171,19 @@ function Packet(_packetId = undefined) constructor
 	{
 		if ((__packetId == undefined) || (__definition == undefined))
 			throw new __spacket_class_exception_uninitialized_packet();
+	}
+	
+	static __generate_header_buffer = function(_isCompressed)
+	{
+		__check_is_initialized();
+		
+		var _headerBuffer = buffer_create(__SPACKET_HEADER_SIZE, buffer_fixed, 1);
+		buffer_write(_headerBuffer, buffer_text, __SPACKET_PACKET_SIGNATURE);
+		buffer_write(_headerBuffer, SPACKET_PACKET_VERSION_BUFFER_TYPE, __packetVersion);
+		buffer_write(_headerBuffer, SPACKET_PACKET_ID_BUFFER_TYPE, __packetId);
+		buffer_write(_headerBuffer, buffer_bool, _isCompressed);
+
+		return _headerBuffer;
 	}
 	
 	__packetVersion = __SPACKET_PACKET_VERSION;
