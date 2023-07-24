@@ -1,3 +1,7 @@
 .idea
-cmake-build-debug
-cmake-build-release
+.vscode
+
+cpp/cmake-build-debug
+cpp/cmake-build-release
+
+nodejs-server-demo/node_modules
