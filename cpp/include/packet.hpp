@@ -1,0 +1,4 @@
+#ifndef CPP_PACKET_HPP
+#define CPP_PACKET_HPP
+
+#endif //CPP_PACKET_HPP
