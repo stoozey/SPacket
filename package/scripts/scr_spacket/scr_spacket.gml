@@ -1,15 +1,23 @@
+///@param {?number} packetId
 function Packet(_packetId = undefined) constructor
 {
+	///@desc Gets the packet version, which is used to tell different game versions from eachother
+	///@returns {number}
 	static get_packet_version = function()
 	{
 		return __packetVersion;
 	}
 	
+	///@desc Gets the packet id, used to differentiate packets from eachother (as defined via spacket_define)
+	///@returns {number}
 	static get_packet_id = function()
 	{
 		return __packetId;
 	}
 	
+	///@desc Gets the value from the packet (as defined via spacket_define)
+	///@param {string} valueName
+	///@returns {any}
 	static get = function(_valueName)
 	{
 		if (!variable_struct_exists(__values, _valueName))
@@ -18,12 +26,19 @@ function Packet(_packetId = undefined) constructor
 		return __values[$ _valueName];
 	}
 	
+	///@desc Sets a value of the packet (as defined via spacket_define)
+	///@param {string} valueName
+	///@param {any} value
+	///@returns {Packet}
 	static set = function(_valueName, _value)
 	{
 		__values[$ _valueName] = _value;
 		return self;
 	}
 	
+	///@desc Sends packet as a serialized buffer to a socket OR multiple sockets
+	///@param {number|Array<number>}
+	///@returns {Packet}
 	static send = function(_sockets)
 	{
 		__check_is_initialized();
@@ -48,6 +63,10 @@ function Packet(_packetId = undefined) constructor
 		return self;
 	}
 	
+	///@desc Deserializes a buffer into the packet's values
+	///@param {buffer} buffer
+	///@param {bool} deleteBuffer
+	///@returns {Packet}
 	static deserialize = function(_buffer, _deleteBuffer = true)
 	{
 		buffer_seek(_buffer, buffer_seek_start, 0);
@@ -139,6 +158,8 @@ function Packet(_packetId = undefined) constructor
 		return self;
 	}
 	
+	///@desc Serializes the packet into a buffer
+	///@returns {buffer}
 	static serialize = function()
 	{
 		__check_is_initialized();
@@ -202,6 +223,8 @@ function Packet(_packetId = undefined) constructor
 		return _buffer;
 	}
 	
+	#region internale
+	
 	static __set_packet_id = function(_packetId)
 	{
 		__packetId = string(_packetId);
@@ -226,6 +249,8 @@ function Packet(_packetId = undefined) constructor
 
 		return _headerBuffer;
 	}
+	
+	#endregion
 	
 	__packetVersion = __SPACKET_PACKET_VERSION;
 	__packetId = undefined;

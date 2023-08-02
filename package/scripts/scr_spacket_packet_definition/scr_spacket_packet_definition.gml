@@ -1,4 +1,4 @@
-function __spacket_class_packet_info() constructor
+function PacketDefinition() constructor
 {
 	static get_values = function()
 	{
