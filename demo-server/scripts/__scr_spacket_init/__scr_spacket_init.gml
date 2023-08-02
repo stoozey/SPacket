@@ -1,1 +1,0 @@
-show_debug_message("SPacket v" + __SPACKET_VERSION + " - https://github.com/stoozey/SPacket - by @stoozey_");
