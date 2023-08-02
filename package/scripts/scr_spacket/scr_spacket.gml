@@ -29,7 +29,7 @@ function Packet(_packetId = undefined) constructor
 		__check_is_initialized();
 		
 		var _buffer = serialize();
-		var _bufferSize = buffer_tell(_buffer);
+		var _bufferSize = buffer_get_size(_buffer);
 		if (is_array(_sockets))
 		{
 			var i = 0;
