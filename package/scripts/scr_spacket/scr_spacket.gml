@@ -24,13 +24,26 @@ function Packet(_packetId = undefined) constructor
 		return self;
 	}
 	
-	static send = function(_socket)
+	static send = function(_sockets)
 	{
 		__check_is_initialized();
 		
 		var _buffer = serialize();
 		var _bufferSize = buffer_tell(_buffer);
-		network_send_packet(_socket, _buffer, _bufferSize);
+		if (is_array(_sockets))
+		{
+			var i = 0;
+			repeat (array_length(_sockets))
+			{
+				var _socket = _sockets[i++];
+				network_send_packet(_socket, _buffer, _bufferSize);
+			}
+		}
+		else
+		{
+			network_send_packet(_sockets, _buffer, _bufferSize);
+		}
+		
 		buffer_delete(_buffer);
 		return self;
 	}

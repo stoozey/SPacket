@@ -1,3 +1,4 @@
+//@returns Packet
 function spacket_define(_packetId)
 {
 	var _definitions = __spacket_get_definitions();
