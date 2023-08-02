@@ -34,5 +34,5 @@ function __spacket_class_exception_packet_value_doesnt_exist(_packetId, _valueNa
 	longMessage = __spacket_string_build("Packet #", _packetId, " does not have a value named \"" + _valueName + "\"");
 }
 
-function __spacket_class_exception_uninitialized_packet()
+function __spacket_class_exception_uninitialized_packet() 
 	: __spacket_class_exception("Packet is uninitialized") constructor {}

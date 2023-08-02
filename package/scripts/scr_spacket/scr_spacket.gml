@@ -45,7 +45,7 @@ function Packet(_packetId = undefined) constructor
 		buffer_copy(_buffer, 0, _signatureSize, _signatureBuffer, 0);
 		
 		var _signature = buffer_read(_signatureBuffer, buffer_text);
-		buffer_seek(_buffer, 0, _signatureSize);
+		buffer_seek(_buffer, buffer_seek_start, _signatureSize);
 		buffer_delete(_signatureBuffer);
 		if (_signature != __SPACKET_PACKET_SIGNATURE)
 			throw new __spacket_class_exception_invalid_packet_signature();
