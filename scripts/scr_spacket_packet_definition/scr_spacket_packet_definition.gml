@@ -8,9 +8,9 @@ function PacketDefinition() constructor
 	
 	///@desc Adds a value to the packet definition
 	///@param {string} valueName The name of the value
-	///@param {number} bufferType The buffer type (buffer_X) of the value
-	///@param {?bool} isArray Whether or not the value is an array of bufferType
-	///@param {?number} arraySize The buffer type (buffer_X) to use for the array's size (defaults to SPACKET_ARRAY_SIZE_BUFFER_TYPE_DEFAULT)
+	///@param {buffer_type} bufferType The buffer type (buffer_X) of the value
+	///@param {bool} [isArray] Whether or not the value is an array of bufferType
+	///@param {buffer_type} [arraySizeBufferType] The buffer type (buffer_X) to use for the array's size (defaults to SPACKET_ARRAY_SIZE_BUFFER_TYPE_DEFAULT)
 	static set = function(_valueName, _bufferType, _isArray = false, _arraySize = SPACKET_ARRAY_SIZE_BUFFER_TYPE_DEFAULT)
 	{
 		var _totalValues = array_length(__values);
