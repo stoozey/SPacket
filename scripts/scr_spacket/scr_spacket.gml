@@ -36,7 +36,7 @@ function Packet(_packetId = undefined) constructor
 		return self;
 	}
 	
-	///@desc Sends packet as a serialized buffer to a socket OR multiple sockets
+	///@desc Sends packet as a serialized buffer via TCP to a socket OR multiple sockets
 	///@param {number|Array<number>}
 	///@returns {Packet}
 	static send = function(_sockets)
@@ -58,6 +58,24 @@ function Packet(_packetId = undefined) constructor
 		{
 			network_send_packet(_sockets, _buffer, _bufferSize);
 		}
+		
+		buffer_delete(_buffer);
+		return self;
+	}
+	
+	///@desc Sends packet as a serialized buffer via UDP to a specific address
+	///@param {string} url The URL to send to
+	///@param {number} port The port to send to
+	///@param {number} [socket] The socket to use to send the packet from
+	static send_udp = function(_url, _port, _socket = undefined)
+	{
+		static udpSocket = network_create_socket(network_socket_udp);
+		
+		__check_is_initialized();
+		
+		var _buffer = serialize();
+		var _bufferSize = buffer_get_size(_buffer);
+		network_send_udp((_socket ?? udpSocket), _url, _port, _buffer, _bufferSize);
 		
 		buffer_delete(_buffer);
 		return self;
