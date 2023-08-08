@@ -4,9 +4,6 @@ function __spacket_class_exception(_message, _longMessage = undefined) construct
 	longMessage = _longMessage;
 }
 
-function __spacket_class_exception_generic(_errorMessage)
-	: __spacket_class_exception("Generic", _errorMessage) constructor {}
-
 function __spacket_class_exception_invalid_packet_signature()
 	: __spacket_class_exception("Invalid packet signature") constructor {}
 
