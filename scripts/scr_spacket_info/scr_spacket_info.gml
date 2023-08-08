@@ -1,5 +1,5 @@
 ///@desc Creates a new definition for a packet
-///@param {real} packetId
+///@param {number} packetId
 ///@returns {PacketDefinition}
 function spacket_define(_packetId)
 {
@@ -11,7 +11,7 @@ function spacket_define(_packetId)
 }
 
 ///@desc Gets an existing packet definition
-///@param {real} packetId
+///@param {number} packetId
 ///@returns {PacketDefinition}
 function spacket_get_definition(_packetId)
 {

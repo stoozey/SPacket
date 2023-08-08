@@ -17,28 +17,3 @@ function __spacket_string_build()
 	
 	return _string;
 }
-
-function __spacket_ds_list_to_array(_list, _destroyList = true)
-{
-	var _listSize = ds_list_size(_list);
-	var _array = array_create(_listSize);
-	var i = 0;
-	repeat (_listSize)
-	{
-		_array[i] = _list[| i];
-		i++;
-	}
-	
-	if (_destroyList)
-		ds_list_destroy(_list);
-	
-	return _array;
-}
-
-function __spacket_string_to_buffer(_string)
-{
-	var _buffer = buffer_create(string_byte_length(_string), buffer_fixed, 1);
-    buffer_write(_buffer, buffer_text, _string);
-	
-	return _buffer;
-}

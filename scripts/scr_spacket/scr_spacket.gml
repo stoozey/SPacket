@@ -1,4 +1,4 @@
-///@param {?number} packetId
+///@param {number} [packetId]
 function Packet(_packetId = undefined) constructor
 {
 	///@desc Gets the packet version, which is used to tell different game versions from eachother
@@ -94,7 +94,7 @@ function Packet(_packetId = undefined) constructor
 		catch (_)
 			throw new __spacket_class_exception_invalid_packet_data("packetId", SPACKET_PACKET_ID_BUFFER_TYPE);
 		
-		if (_packetVersion != __SPACKET_PACKET_VERSION)
+		if (_packetVersion != SPACKET_PACKET_VERSION)
 		{
 			switch (SPACKET_ON_WRONG_PACKET_VERSION)
 			{
@@ -286,7 +286,7 @@ function Packet(_packetId = undefined) constructor
 	
 	#endregion
 	
-	__packetVersion = __SPACKET_PACKET_VERSION;
+	__packetVersion = SPACKET_PACKET_VERSION;
 	__packetId = undefined;
 	__definition = undefined;
 	__values = { };

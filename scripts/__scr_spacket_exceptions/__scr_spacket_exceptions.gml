@@ -16,7 +16,7 @@ function __spacket_class_exception_invalid_packet_data(_valueName, _bufferType)
 function __spacket_class_exception_mismatched_packet_version(_packetId, _otherPacketVersion)
 	: __spacket_class_exception("Mismatched packet version") constructor
 {
-	longMessage = __spacket_string_build("Packet #", _packetId, " has mismatched SPACKET_PACKET_VERSION (we are ", __SPACKET_PACKET_VERSION, ", they are ", _otherPacketVersion, ")");
+	longMessage = __spacket_string_build("Packet #", _packetId, " has mismatched SPACKET_PACKET_VERSION (we are ", SPACKET_PACKET_VERSION, ", they are ", _otherPacketVersion, ")");
 }
 
 function __spacket_class_exception_packet_serialization_failed(_errorMessage)
