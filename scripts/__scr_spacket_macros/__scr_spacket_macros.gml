@@ -1,4 +1,4 @@
-#macro __SPACKET_VERSION "0.9.0"
+#macro __SPACKET_VERSION "1.0.0"
 
 #macro __SPACKET_PACKET_SIGNATURE "SP"
 

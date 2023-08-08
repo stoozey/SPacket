@@ -1,0 +1,10 @@
+draw_set_halign(fa_center);
+draw_set_valign(fa_middle);
+	var _guiWidth = display_get_gui_width();
+	var _guiHeight = display_get_gui_height();
+	var _x = (_guiWidth * 0.5);
+	var _y = (_guiHeight * 0.5);
+	var _totalPlayers = variable_struct_names_count(playerIdToSocketIds);
+	draw_text(_x, _y, "Total Clients Connected: " + string(_totalPlayers));
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);

@@ -1,11 +1,8 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_spacket_demo_client_ghost",
-  "spriteId": {
-    "name": "spr_spacket_demo_client_ghost",
-    "path": "sprites/spr_spacket_demo_client_ghost/spr_spacket_demo_client_ghost.yy",
-  },
+  "name": "obj_demo",
+  "spriteId": null,
   "solid": false,
   "visible": true,
   "managed": true,

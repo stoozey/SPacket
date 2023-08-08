@@ -1,7 +1,7 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "scr_spacket_demo",
+  "name": "scr_demo_packet_definitions",
   "isDnD": false,
   "isCompatibility": false,
   "parent": {

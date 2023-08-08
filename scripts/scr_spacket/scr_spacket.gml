@@ -1,15 +1,23 @@
+///@param {?number} packetId
 function Packet(_packetId = undefined) constructor
 {
+	///@desc Gets the packet version, which is used to tell different game versions from eachother
+	///@returns {number}
 	static get_packet_version = function()
 	{
 		return __packetVersion;
 	}
 	
+	///@desc Gets the packet id, used to differentiate packets from eachother (as defined via spacket_define)
+	///@returns {number}
 	static get_packet_id = function()
 	{
 		return __packetId;
 	}
 	
+	///@desc Gets the value from the packet (as defined via spacket_define)
+	///@param {string} valueName
+	///@returns {any}
 	static get = function(_valueName)
 	{
 		if (!variable_struct_exists(__values, _valueName))
@@ -18,23 +26,47 @@ function Packet(_packetId = undefined) constructor
 		return __values[$ _valueName];
 	}
 	
+	///@desc Sets a value of the packet (as defined via spacket_define)
+	///@param {string} valueName
+	///@param {any} value
+	///@returns {Packet}
 	static set = function(_valueName, _value)
 	{
 		__values[$ _valueName] = _value;
 		return self;
 	}
 	
-	static send = function(_socket)
+	///@desc Sends packet as a serialized buffer to a socket OR multiple sockets
+	///@param {number|Array<number>}
+	///@returns {Packet}
+	static send = function(_sockets)
 	{
 		__check_is_initialized();
 		
 		var _buffer = serialize();
-		var _bufferSize = buffer_tell(_buffer);
-		network_send_packet(_socket, _buffer, _bufferSize);
+		var _bufferSize = buffer_get_size(_buffer);
+		if (is_array(_sockets))
+		{
+			var i = 0;
+			repeat (array_length(_sockets))
+			{
+				var _socket = _sockets[i++];
+				network_send_packet(_socket, _buffer, _bufferSize);
+			}
+		}
+		else
+		{
+			network_send_packet(_sockets, _buffer, _bufferSize);
+		}
+		
 		buffer_delete(_buffer);
 		return self;
 	}
 	
+	///@desc Deserializes a buffer into the packet's values
+	///@param {buffer} buffer
+	///@param {bool} deleteBuffer
+	///@returns {Packet}
 	static deserialize = function(_buffer, _deleteBuffer = true)
 	{
 		buffer_seek(_buffer, buffer_seek_start, 0);
@@ -45,7 +77,7 @@ function Packet(_packetId = undefined) constructor
 		buffer_copy(_buffer, 0, _signatureSize, _signatureBuffer, 0);
 		
 		var _signature = buffer_read(_signatureBuffer, buffer_text);
-		buffer_seek(_buffer, 0, _signatureSize);
+		buffer_seek(_buffer, buffer_seek_start, _signatureSize);
 		buffer_delete(_signatureBuffer);
 		if (_signature != __SPACKET_PACKET_SIGNATURE)
 			throw new __spacket_class_exception_invalid_packet_signature();
@@ -105,10 +137,26 @@ function Packet(_packetId = undefined) constructor
 			var i = 0;
 			repeat (array_length(_valueDefinitions))
 			{
+				var _value;
 				var _valueDefinition = _valueDefinitions[i++];
 				var _name = _valueDefinition.get_name();
 				var _bufferType = _valueDefinition.get_buffer_type();
-				var _value = buffer_read(_dataBuffer, _bufferType);
+				var _usesArray = _valueDefinition.uses_array();
+				if (_usesArray)
+				{
+					var _arraySizeBufferType = _valueDefinition.get_array_size_buffer_type();
+					var _arraySize = buffer_read(_dataBuffer, _arraySizeBufferType);
+					_value = array_create(_arraySize);
+					
+					var i = 0;
+					repeat (_arraySize)
+						_value[i++] = buffer_read(_dataBuffer, _bufferType);
+				}
+				else
+				{
+					_value = buffer_read(_dataBuffer, _bufferType);
+				}
+				
 				set(_name, _value);
 			}
 		}
@@ -126,6 +174,8 @@ function Packet(_packetId = undefined) constructor
 		return self;
 	}
 	
+	///@desc Serializes the packet into a buffer
+	///@returns {buffer}
 	static serialize = function()
 	{
 		__check_is_initialized();
@@ -142,9 +192,23 @@ function Packet(_packetId = undefined) constructor
 				if (!variable_struct_exists(__values, _name))
 					throw ("value name \"" + _name + "\" is missing from packet #" + __packetId);
 			
-				var _bufferType = _valueDefinition.get_buffer_type();
 				var _value = __values[$ _name];
-				buffer_write(_uncompressedBuffer, _bufferType, _value);
+				var _bufferType = _valueDefinition.get_buffer_type();
+				var _usesArray = _valueDefinition.uses_array();
+				if (_usesArray)
+				{
+					var _arraySizeBufferType = _valueDefinition.get_array_size_buffer_type();
+					var _arraySize = array_length(_value);
+					buffer_write(_uncompressedBuffer, _arraySizeBufferType, _arraySize);
+					
+					var i = 0;
+					repeat (_arraySize)
+						buffer_write(_uncompressedBuffer, _bufferType, _value[i++]);
+				}
+				else
+				{
+					buffer_write(_uncompressedBuffer, _bufferType, _value);
+				} 	
 			}
 		}
 		catch (_e)
@@ -155,10 +219,16 @@ function Packet(_packetId = undefined) constructor
 		
 		// compress buffer and see if size can be reduced
 		var _dataBuffer, _dataSize;
-		var _uncompressedSize = buffer_tell(_uncompressedBuffer);
-		var _compressedBuffer = buffer_compress(_uncompressedBuffer, 0, _uncompressedSize);
-		var _compressedSize = buffer_get_size(_compressedBuffer);
-		var _isCompressed = (_compressedSize < _uncompressedSize);
+		var _isCompressed = false;
+		
+		if (SPACKET_AUTOMATIC_COMPRESSION)
+		{
+			var _uncompressedSize = buffer_get_size(_uncompressedBuffer);
+			var _compressedBuffer = buffer_compress(_uncompressedBuffer, 0, _uncompressedSize);
+			var _compressedSize = buffer_get_size(_compressedBuffer);
+			_isCompressed = (_compressedSize < _uncompressedSize);
+		}
+		
 		if (_isCompressed)
 		{
 			_dataBuffer = _compressedBuffer;
@@ -184,10 +254,10 @@ function Packet(_packetId = undefined) constructor
 		// write compressd data
 		buffer_copy(_dataBuffer, 0, _dataSize, _buffer, __SPACKET_HEADER_SIZE);
 		buffer_delete(_dataBuffer);
-		
-		buffer_save(_buffer, "poop.bin");
 		return _buffer;
 	}
+	
+	#region internale
 	
 	static __set_packet_id = function(_packetId)
 	{
@@ -213,6 +283,8 @@ function Packet(_packetId = undefined) constructor
 
 		return _headerBuffer;
 	}
+	
+	#endregion
 	
 	__packetVersion = __SPACKET_PACKET_VERSION;
 	__packetId = undefined;

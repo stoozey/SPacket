@@ -4,9 +4,6 @@ function __spacket_class_exception(_message, _longMessage = undefined) construct
 	longMessage = _longMessage;
 }
 
-function __spacket_class_exception_generic(_errorMessage)
-	: __spacket_class_exception("Generic", _errorMessage) constructor {}
-
 function __spacket_class_exception_invalid_packet_signature()
 	: __spacket_class_exception("Invalid packet signature") constructor {}
 
@@ -34,5 +31,5 @@ function __spacket_class_exception_packet_value_doesnt_exist(_packetId, _valueNa
 	longMessage = __spacket_string_build("Packet #", _packetId, " does not have a value named \"" + _valueName + "\"");
 }
 
-function __spacket_class_exception_uninitialized_packet()
+function __spacket_class_exception_uninitialized_packet() 
 	: __spacket_class_exception("Packet is uninitialized") constructor {}
