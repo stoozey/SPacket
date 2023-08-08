@@ -40,9 +40,9 @@
     {"roomId":{"name":"rm_demo","path":"rooms/rm_demo/rm_demo.yy",},},
   ],
   "Folders": [
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Demo","folderPath":"folders/Demo.yy","order":2,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"SPacket","folderPath":"folders/SPacket.yy","order":1,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Internal","folderPath":"folders/SPacket/Internal.yy","order":1,},
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Demo","folderPath":"folders/Demo.yy","order":2,},
   ],
   "AudioGroups": [
     {"resourceType":"GMAudioGroup","resourceVersion":"1.3","name":"audiogroup_default","targets":-1,},

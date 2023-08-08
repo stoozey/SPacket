@@ -3,11 +3,13 @@
 
 
 /*
-	What--numeric--buffer type to use for the header information. Do not use buffer_string/text.
+	What *numeric* buffer type to use for the header information. Do not use buffer_string/text.
 	Reduce/increase these as you need to for packet size management.
 	
 	A potential gotcha would be changing this and having SPACKET_ON_WRONG_PACKET_VERSION set to IGNORE;
 	if you change this after an already released version of your game exists, you *need* ERROR enabled.
+	
+	TL;DR - For future proofing, maybe add an extra byte if you think the number has any possibility of increasing later on.
 */
 #macro SPACKET_PACKET_VERSION_BUFFER_TYPE buffer_u16
 #macro SPACKET_PACKET_ID_BUFFER_TYPE buffer_u16
