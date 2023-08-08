@@ -189,10 +189,16 @@ function Packet(_packetId = undefined) constructor
 		
 		// compress buffer and see if size can be reduced
 		var _dataBuffer, _dataSize;
-		var _uncompressedSize = buffer_tell(_uncompressedBuffer);
-		var _compressedBuffer = buffer_compress(_uncompressedBuffer, 0, _uncompressedSize);
-		var _compressedSize = buffer_get_size(_compressedBuffer);
-		var _isCompressed = (_compressedSize < _uncompressedSize);
+		var _isCompressed = false;
+		
+		if (SPACKET_AUTOMATIC_COMPRESSION)
+		{
+			var _uncompressedSize = buffer_tell(_uncompressedBuffer);
+			var _compressedBuffer = buffer_compress(_uncompressedBuffer, 0, _uncompressedSize);
+			var _compressedSize = buffer_get_size(_compressedBuffer);
+			_isCompressed = (_compressedSize < _uncompressedSize);
+		}
+		
 		if (_isCompressed)
 		{
 			_dataBuffer = _compressedBuffer;
