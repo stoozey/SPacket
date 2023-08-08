@@ -11,7 +11,7 @@ enum PACKET_ID
 #region server
 
 spacket_define(PACKET_ID.S_PLAYER_UPDATE_IDS)
-	.set("playerIds", buffer_string);
+	.set("playerIds", buffer_u8, true, buffer_u8);
 
 spacket_define(PACKET_ID.S_PLAYER_GET_MY_ID)
 	.set("playerId", buffer_u8);

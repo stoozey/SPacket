@@ -72,7 +72,7 @@ RemovePlayer = function(_playerId)
 UpdatePlayers = function()
 {
 	var _socketIds = GetSocketIds();
-	var _playerIds = json_stringify(GetPlayerIds());
+	var _playerIds = GetPlayerIds();
 	new Packet(PACKET_ID.S_PLAYER_UPDATE_IDS)
 		.set("playerIds", _playerIds)
 		.send(_socketIds);

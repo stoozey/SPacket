@@ -3,6 +3,8 @@
 
 #macro SPACKET_AUTOMATIC_COMPRESSION true	// If compressing a packet would increase it's size, it will be automatically compressed
 
+#macro SPACKET_ARRAY_SIZE_BUFFER_TYPE_DEFAULT buffer_u16	// The max size of an array stored in a packet, if not supplied manually
+
 /*
 	What *numeric* buffer type to use for the header information. Do not use buffer_string/text.
 	Reduce/increase these as you need to for packet size management.

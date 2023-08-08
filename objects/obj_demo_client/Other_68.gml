@@ -12,7 +12,7 @@ switch (_type)
 		{
 			case PACKET_ID.S_PLAYER_UPDATE_IDS:
 			{
-				var _newPlayerIds = json_parse(_packet.get("playerIds"));
+				var _newPlayerIds = _packet.get("playerIds");
 				var _totalNewPlayerIds = array_length(_newPlayerIds);
 				
 				// remove any old players

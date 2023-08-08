@@ -137,10 +137,26 @@ function Packet(_packetId = undefined) constructor
 			var i = 0;
 			repeat (array_length(_valueDefinitions))
 			{
+				var _value;
 				var _valueDefinition = _valueDefinitions[i++];
 				var _name = _valueDefinition.get_name();
 				var _bufferType = _valueDefinition.get_buffer_type();
-				var _value = buffer_read(_dataBuffer, _bufferType);
+				var _usesArray = _valueDefinition.uses_array();
+				if (_usesArray)
+				{
+					var _arraySizeBufferType = _valueDefinition.get_array_size_buffer_type();
+					var _arraySize = buffer_read(_dataBuffer, _arraySizeBufferType);
+					_value = array_create(_arraySize);
+					
+					var i = 0;
+					repeat (_arraySize)
+						_value[i++] = buffer_read(_dataBuffer, _bufferType);
+				}
+				else
+				{
+					_value = buffer_read(_dataBuffer, _bufferType);
+				}
+				
 				set(_name, _value);
 			}
 		}
@@ -176,9 +192,23 @@ function Packet(_packetId = undefined) constructor
 				if (!variable_struct_exists(__values, _name))
 					throw ("value name \"" + _name + "\" is missing from packet #" + __packetId);
 			
-				var _bufferType = _valueDefinition.get_buffer_type();
 				var _value = __values[$ _name];
-				buffer_write(_uncompressedBuffer, _bufferType, _value);
+				var _bufferType = _valueDefinition.get_buffer_type();
+				var _usesArray = _valueDefinition.uses_array();
+				if (_usesArray)
+				{
+					var _arraySizeBufferType = _valueDefinition.get_array_size_buffer_type();
+					var _arraySize = array_length(_value);
+					buffer_write(_uncompressedBuffer, _arraySizeBufferType, _arraySize);
+					
+					var i = 0;
+					repeat (_arraySize)
+						buffer_write(_uncompressedBuffer, _bufferType, _value[i++]);
+				}
+				else
+				{
+					buffer_write(_uncompressedBuffer, _bufferType, _value);
+				} 	
 			}
 		}
 		catch (_e)
@@ -193,7 +223,7 @@ function Packet(_packetId = undefined) constructor
 		
 		if (SPACKET_AUTOMATIC_COMPRESSION)
 		{
-			var _uncompressedSize = buffer_tell(_uncompressedBuffer);
+			var _uncompressedSize = buffer_get_size(_uncompressedBuffer);
 			var _compressedBuffer = buffer_compress(_uncompressedBuffer, 0, _uncompressedSize);
 			var _compressedSize = buffer_get_size(_compressedBuffer);
 			_isCompressed = (_compressedSize < _uncompressedSize);
@@ -224,8 +254,6 @@ function Packet(_packetId = undefined) constructor
 		// write compressd data
 		buffer_copy(_dataBuffer, 0, _dataSize, _buffer, __SPACKET_HEADER_SIZE);
 		buffer_delete(_dataBuffer);
-		
-		buffer_save(_buffer, "poop.bin");
 		return _buffer;
 	}
 	
